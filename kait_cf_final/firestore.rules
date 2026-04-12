@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: /users/{userId}
+    // Document ID: Firebase Auth UID
+    // Fields: uid, email, gender, lastActive, updatedAt, physiology, preferences
+    //
+    // Collection: /users/{userId}/logs/{logId}
+    // Fields: uid, timestamp, location, atmospheric, optical, biochemical, geovisual
+    //
+    // Collection: /users/{userId}/feedback/{feedbackId}
+    // Fields: timestamp, recommendation, feedback, env
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "alisonlam0703@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    // Domain Validators
+    function isValidUser(data) {
+      return (data.uid == request.auth.uid || !('uid' in data)) &&
+             (!('email' in data) || data.email is string);
+    }
+
+    function isValidLog(data) {
+      return (data.uid == request.auth.uid || !('uid' in data)) &&
+             (!('timestamp' in data) || data.timestamp is string);
+    }
+
+    function isValidFeedback(data) {
+      return (!('feedback' in data) || data.feedback in ['Too Cold', 'Comfortable', 'Too Hot']) &&
+             (!('timestamp' in data) || data.timestamp is string);
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data);
+
+      match /logs/{logId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidLog(request.resource.data);
+      }
+
+      match /recommendations/{recId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId);
+      }
+
+      match /feedback/{feedbackId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidFeedback(request.resource.data);
+      }
+    }
+  }
+}
