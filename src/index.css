@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    @apply font-sans antialiased text-[#333333] selection:bg-black/10;
+    transition: background-color 1s ease-in-out;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.97; }
+  50% { opacity: 1; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 10s ease-in-out infinite;
+}
+
+@utility din-text {
+  @apply font-display lowercase tracking-[0.08em] leading-[1.6];
+}
+
+@utility din-caps {
+  @apply font-display uppercase tracking-[0.12em] text-[14px] font-bold;
+}
+
+@utility ghost-button {
+  @apply din-caps border border-[#333333]/60 px-8 py-3 transition-all duration-300 hover:bg-black/5 hover:border-[#333333] active:scale-[0.98];
+}
+
+@utility line-1px {
+  @apply h-[1px] bg-[#333333]/20 w-[60%] mx-auto;
+}

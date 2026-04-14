@@ -1,0 +1,6 @@
+{
+  "name": "KAIT | Poetic Dressing Advisor",
+  "description": "A minimalist, atmospheric dressing advisor that syncs with your senses and the environment.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": []
+}
